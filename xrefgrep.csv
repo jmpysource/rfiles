@@ -1,28 +1,29 @@
 term,name
 w cover,window covering
-ven,hood
+ven,range
 vani,vanities
 utter,gutter
 upervis,supervision
 umbing,plumbing
-ton,hvac
+ton,HVAC
 ryer,dryer
 pressor,compressor
 pool,pool
-oor,doors
+door,doors
+floor,flooring
 oof,roof
 onden,condenser
 omput,computers
-offi,Office
+offi,office
 ndows,windows
 mgmt,supervision
-louv,Louver
+louv,louver
 llcovering,wall covering
 ishwas,dishwasher
 igns,signs
-idewals,sidewalks
+idewal,sidewalks
 icem,icemaker
-HVAC,havc
+HVAC,HVAC
 golf,golf cart
 ghting,lighting
 furn,furniture
@@ -31,10 +32,53 @@ enovat,renovation
 emov,removal
 crowave,microwave
 aving,paving
-avel,travel
-ates,gates
+avel,supervision
 ater,water heater
 ange,range
 andscap,landscaping
 ainting,painting
-a/c,hvac
+a/c,HVAC
+iding,siding
+air con,HVAC
+lectric,electrical
+ounda,foundation
+tile,tile
+drai,drainage
+oodwor,woodwork
+spha,asphalt
+upplie,supplies
+gate,gates
+abine,cabinets
+frig,refrigerator
+oile,toilets
+coi,HVAC
+irr,irrigation
+bri,brick
+ilea,supervision
+repa,repair
+ealcoa,sealcoat
+hood,range
+alcon,balcony
+fridg,refrigerator
+urb,curb
+ight,lighting
+pain,painting
+appl,appliances
+fram,framing
+stov,range
+sewe,sewer
+mgt,supervision
+fenc,fences
+sod,sod
+viny,vinyl
+air han,HVAC
+sign,signs
+surp,supervision
+carp,carpet
+stai,stairs
+grub,cleaning grubbing
+mail,mail house
+arking,parking lot
+frid,refrigerator
+coun,countertops
+ubhou,clubhouse
