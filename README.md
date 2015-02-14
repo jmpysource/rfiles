@@ -1,2 +1,2 @@
 # genome
-Genome
+Place to keep edx genome stat files
