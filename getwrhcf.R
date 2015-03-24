@@ -1,7 +1,8 @@
 # get wrhcashflow
 library(dplyr)
 library(knitr)
-setwd("~/data")
+setwd("c:/code/rfiles")
+#setwd("~/data")
 wrh <- read.csv("wrhcurrent.csv")
 wrh$pno <- as.factor(wrh$pno)
 wrh$revunit <- wrh$rev/wrh$units
