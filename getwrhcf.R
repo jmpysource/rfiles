@@ -33,13 +33,14 @@ cfview <- c(2,7,8,9,10,6) #cash flow report view- with revenue
 unitview <- c(2,7,8,19,21,20,22,6,17) #per unit and per sqft view
 pctview <- c(2,7,8,23,24,27,25,26)
 genview <- c(2,4,7,8,10,15,6)
-debtview <-c(2,7,8,9,10,28,29)
+debtview <-c(2,7,8,9,10,18,29,30,31,19)
 #head(wrh)
 str(wrh)
 #groups for dplyr
 by_state <- group_by(wrh,st)
 by_area  <- group_by(wrh,loc)
 by_mkt <- group_by(wrh,mkt)
+by_lender <- group_by(wrh,lender)
 # Build states for filter
 states <- levels(wrh$st)
 for (i in states){

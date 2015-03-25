@@ -2,7 +2,7 @@ setwd("c:/code/rfiles")
 #setwd("~/data")
 library(dplyr)
 groupsummary<-function(grpframe){
-  summarise(grpframe,Prps=n(),Rev=sum(rev/1000),'Rev%'=sum(pctrev),NOIAR=sum(noiar/1000),"NOIAR%"=sum(pctnoi),Units=sum(units),'Unit%'=sum(pctunits))
+  summarise(grpframe,Prps=n(),Rev=sum(rev/1000),'Rev%'=sum(pctrev),NOIAR=sum(noiar/1000),"NOIAR%"=sum(pctnoi),Units=sum(units),'Unit%'=sum(pctunits),'Debt'=sum(debt/1000))
    }
 len<- function(x) {
   length(x)
