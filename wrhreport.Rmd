@@ -1,0 +1,23 @@
+---
+title: "wrhreport"
+author: "JM"
+date: "Monday, August 11, 2014"
+output: html_document
+---
+WRH owns 26 multifamily properties in the southeastern United States and Texas. Here is summary:
+
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
+library(dplyr)
+x<-summarise(mg,count=n(),units=sum(units),revenue=sum(rev))
+arrange(x,units=desc)
+print(format(x,big.mark=","))
+```
+
+You can also embed plots, for example:
+
+```{r, echo=FALSE}
+plot(units~st,data=mg)
+```
+
+Note that the `echo = FALSE` parameter was added to the code chunk to prevent printing of the R code that generated the plot.
