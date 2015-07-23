@@ -5,9 +5,10 @@ setwd("c:/code/rfiles")
 #setwd("~/data")
 wrh <- read.csv("wrhcurrent.csv")
 wrh$pno <- as.factor(wrh$pno)
+wrh$st <- as.factor(wrh$st)
 wrh$revunit <- wrh$rev/wrh$units
-wrh$revft <-wrh$rev/wrh$sqft
 wrh$noiunit <- wrh$noiar/wrh$units
+wrh$revft <-wrh$rev/wrh$sqft
 wrh$noift <- wrh$noiar/wrh$sqft
 rownames(wrh) <- wrh$pno
 #identify columns that can be totaled
@@ -20,20 +21,14 @@ wrh$pctrev <- wrh$rev/totals["rev"]
 wrh$pctnoi <- wrh$noiar/totals["noiar"]
 wrh$pctunits <- wrh$units/totals["units"]
 wrh$pctsqft <- wrh$sqft/totals["sqft"]
-wrh$pctdebtsvc <- wrh$debtsvc/totals["debtsvc"]
+wrh$debtcvg <- wrh$noiar/wrh$debtsvc
 wrh$debtrev <-wrh$debtsvc/wrh$rev
 wrh$debtnoi <-wrh$debtsvc/wrh$noiar
-# columns used for views
-# [1] "pno"        "prop"       "st"         "mkt"        "loc"        "units"      "rev"       
-#[8] "noiar"      "debtsvc"    "cflow"      "reno"       "corpexp"    "netcf"      "margin"    
-#[15] "occ"        "eocc"       "sqft"       "period"     "revunit"    "revft"      "noiunit"   
-#[22] "noift"      "pctrev"     "pctnoi"     "pctunits"   "pctsqft"    "pctdebtsvc" "debtrev"   
-#[29] "debtnoi" 
 cfview <- c(2,7,8,9,10,6) #cash flow report view- with revenue
-unitview <- c(2,7,8,19,21,20,22,6,17) #per unit and per sqft view
-pctview <- c(2,7,8,23,24,27,25,26)
+unitview <- c(2,7,8,22,23,24,25,6) #per unit and per sqft view
+pctview <- c(2,7,8,26,27,28,29)
 genview <- c(2,4,7,8,10,15,6)
-debtview <-c(2,7,8,9,10,18,29,30,31,19)
+debtview <-c(2,7,8,9,10,30,31,32,19,18)
 #head(wrh)
 str(wrh)
 #groups for dplyr
