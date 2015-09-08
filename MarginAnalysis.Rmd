@@ -1,3 +1,11 @@
+---
+title: "WRH Profit Analysis by Property"
+author: "Jay Meder"
+date: "September 2015"
+output: html_document
+---
+
+```{r echo=FALSE, message=FALSE, warning=FALSE}
 rm(list=ls()) # clear out objects
 setwd("c:/code/rfiles/rdata")
 library("dplyr")
@@ -6,12 +14,12 @@ library("ggplot2")
 wrh<- read.csv("wrhdtl0715.csv")
 psqft<-cbind(wrh[,"pno"],wrh[,2:18]/wrh[,"sqft"]) #create per square foot measurements
 punit<-cbind(wrh[,"pno"],wrh[,2:18]/wrh[,"units"])#create per unit measurements
-summary(wrh[,"margin"]) # get stats on the margin range
-# boxplot(wrh[,"margin"])
-# hist(wrh[,"margin"])
-# d<- density(wrh[,"margin"])
-# plot(d)
-# Report 1
+```
+This report is prepared to analyze the profitability of properties owned by WRH Income Properties, defined as Net Operating Income after Replacements (NOIAR) divided by Revenue. This measure will be referred to as the margin in this report. For this report debt service, corporate expenses and renovations are excluded. Also, only properties with a 12 month operating history were included. To begin, here is list of all properties included in the analysis, sorted by their Margin in decreasing order.    
+
+
+```{r, echo=FALSE,message=FALSE, warning=FALSE,comment=NA,row.names=FALSE}
+## comment =NA removes ## from output
 #Margins by property
 wrh$Margin<-format(wrh[,"noiar"]/wrh[,"rev"],digits=4) #add a recalculated margin just to be sure - use a capital M
 sum_margin<-wrh[,c("Prop","Margin")] #create a two column dataframe
@@ -19,12 +27,15 @@ t<- which (sum_margin$Prop=="Total") # Find the Total Row to remove it
 sum_margin<-sum_margin[-t,] # Remove the Toatl Row
 sum_margino<- sum_margin[order(sum_margin$Margin,decreasing = TRUE),]#Create a sorted DF
 print(format(sum_margino,justify="left",big.mark=","),print.gap=3) #Print it
+```
 
+Looking further at the top five properties
 
+```{r, echo=FALSE,message=FALSE, warning=FALSE,comment=NA,row.names=FALSE}
 #Identify Top 5 and create DF
 cutoff<-min(sum_margino[1:5,"Margin"])
 top5 <-which(wrh[,"Margin"]>=cutoff)
-wrhtop5<-wrh[top1,]
+wrhtop5<-wrh[top5,]
 wrhtop5<-wrhtop5[order(wrhtop5$Margin,decreasing = TRUE),]
 sum5<- wrhtop5[,c("Prop","state","rev","noiar","units","sqft")]
 sum5$revunit<-sum5[,3]/sum5[,5]
@@ -32,19 +43,10 @@ sum5$noiarunit<-sum5[,4]/sum5[,5]
 sum5$revft<-sum5[,3]/sum5[,6]
 sum5$noiarft<-sum5[,4]/sum5[,6]
 sum5$avgunit<-sum5[,6]/sum5[,5]
-print(format(sum5,justify="left",big.mark=","),print.gap=3) #Print it
-psqft[top5,]
-mnsqft<- colMeans(psqft[top5,])
+print(format(sum5[,c(1,4,5,6,7)],justify="left",big.mark=","),print.gap=3) #Print it
 
-# mnsqft
-# #Margins by property
-# 
-# wrh$marg<-format(wrh[,"noiar"]/wrh[,"rev"],digits=4) #add a recalculated margin just to be sure
-# sum_margin<-wrh[,c("Prop","marg")]
-# t<- which (sum_margin$Prop=="Total")
-# sum_margin<-sum_margin[-t,]
-# sum_margino<- sum_margin[order(sum_margin$marg,decreasing = TRUE),]
-# 
-# print(format(sum_margino,justify="left",big.mark=","),print.gap=3)
+
+
+
 
 
