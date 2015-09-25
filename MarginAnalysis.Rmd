@@ -1,52 +1,194 @@
 ---
-title: "WRH Profit Analysis by Property"
-author: "Jay Meder"
-date: "September 2015"
+title: "Profit Analysis by Property"
+author: "WRH Income Properties - Owned Properties"
+date: "September 29, 2015"
 output: html_document
 ---
 
 ```{r echo=FALSE, message=FALSE, warning=FALSE}
 rm(list=ls()) # clear out objects
-setwd("c:/code/rfiles/rdata")
+##setwd("c:/code/rfiles/rdata")
 library("dplyr")
 library("knitr")
 library("ggplot2")
-wrh<- read.csv("wrhdtl0715.csv")
-psqft<-cbind(wrh[,"pno"],wrh[,2:18]/wrh[,"sqft"]) #create per square foot measurements
-punit<-cbind(wrh[,"pno"],wrh[,2:18]/wrh[,"units"])#create per unit measurements
+options(scipen=999)
+wrh<- read.csv("currentdtl.csv")
+md<-which(wrh$pno==280)#find Madalyn Landing - less than 12 months
+wrh<- wrh[-md,]# remove Madalyn
+row.names(wrh)<- wrh$pno
+wrh$margin<- wrh$noiar/wrh$rev  # recalc margin just ot be sure
+wrh$avgunitsize<- wrh$sqft/wrh$units
+tot<- sapply(wrh[,c(2:19,21:26)],sum)#get totals for number columns
+totmargin<-sum(wrh$noiar)/sum(wrh$rev)#get total margin
+psqft<-cbind(wrh$pno,wrh[,2:19]/wrh$sqft,wrh$avgunitsize,wrh$margin) #create per square foot dataframe
+colnames(psqft)[colnames(psqft)=="wrh$margin"]<-"margin"
+colnames(psqft)[colnames(psqft)=="wrh$avgunitsize"]<-"AvgUnitSize"
+colnames(psqft)[colnames(psqft)=="wrh$pno"]<-"prop#"
+punit<-cbind(wrh$pno,wrh[,2:19]/wrh$units,wrh$avgunitsize,wrh$margin)#create per unit dataframe
+colnames(punit)[colnames(punit)=="wrh$margin"]<-"margin"
+colnames(punit)[colnames(punit)=="wrh$avgunitsize"]<-"AvgUnitSize"
+colnames(punit)[colnames(punit)=="wrh$pno"]<-"prop#"
+sumview<- c("gpr","rent","rev","totexp","noiar")
+sview<- c("gpr","rent","rev","totexp","margin")
+options(width=250)
 ```
-This report is prepared to analyze the profitability of properties owned by WRH Income Properties, defined as Net Operating Income after Replacements (NOIAR) divided by Revenue. This measure will be referred to as the margin in this report. For this report debt service, corporate expenses and renovations are excluded. Also, only properties with a 12 month operating history were included. To begin, here is list of all properties included in the analysis, sorted by their Margin in decreasing order.    
+This report analyzes the profitability of properties owned by WRH Income Properties. Profitability is defined as net operating income after replacements (NOIAR) divided by total revenue and it will be referred to in this report as margin. Debt service, corporate expenses and renovations are excluded in this analysis. Also, only properties with a 12 month operating history were included.  
+I am presenting a number of views and summaries of the property results to shed some light on the margin levels and what affects them.  
+To begin, here is list of all properties included in the analysis, sorted by their margin in decreasing order, followed by a histogram chart of the ranges of the margin.  
+
+All information is based on trailing 12 month results for the period ended August 31, 2015.
+
+
+
+```{r, echo=FALSE,message=FALSE, warning=FALSE,comment=NA,row.names=FALSE,fig.height=4,fig.width==8}
+## comment =NA removes ## from output
+#Margins by property
+wrh$Margin<-format(wrh$margin,digits=3) #add a formatted margin - use a capital M
+sum_margin<-wrh[,c("pno","prop","rev","noiar","Margin","margin")] #create a smaller dataframe
+# t<- which (sum_margin$prop=="Total") # Find the Total Row to remove it
+# sum_margin<-sum_margin[-t,] # Remove the Total Row
+sum_margin<- sum_margin[order(sum_margin$Margin,decreasing = TRUE),]#Create a sorted DF
+print(format(sum_margin[,2:5],justify="left",big.mark=","),print.gap=3) #Print it
+print("Totals",quote="FALSE")
+print(format(tot[c(6,18,23)],justify="left",big.mark=",",print.gap=3),quote="FALSE") #Print it
+print ("Total Margin:",quote=FALSE)
+print(totmargin,digits=3)
+
+#boxplot(wrh$margin)
+#hist(wrh$margin)
+hist(wrh$margin, breaks=c(.2,.25,.30,.35,.40,.45,.50,.55,.6),main="Margins of WRH Properties",xlab="Margin(NOIAR/Revenue)",ylab="No. of Properties")
+```
+
+A summary by state is as follows:
+
+```{r, echo=FALSE,message=FALSE, warning=FALSE,comment=NA,row.names=FALSE}
+ bystate<- group_by(wrh,state)
+ bystate<- mutate(bystate,wtdmarg=rev/sum(rev)*margin)
+ sumstate<-summarise(bystate, count=n(), revenue=sum(rev), noiar=sum(noiar), units=sum(units), sqfeet=sum(sqft))
+ sumstate<- mutate(sumstate,marg=noiar/revenue)
+ sumstate$marg<-format(sumstate$marg,digits=3)
+ print(format(sumstate,justify="left",big.mark=","),print.gap=3)
+
+```
+The following is a summary of margin statistics and a segmenting of the properties into four groups of margin ranges (quartiles) from high to low:
+```{r, echo=FALSE,message=FALSE, warning=FALSE,comment=NA,row.names=FALSE}
+print ("Stat Summary of Margin%",quote=F)
+print(summary(wrh$margin,digits=3))
+```
 
 
 ```{r, echo=FALSE,message=FALSE, warning=FALSE,comment=NA,row.names=FALSE}
-## comment =NA removes ## from output
-#Margins by property
-wrh$Margin<-format(wrh[,"noiar"]/wrh[,"rev"],digits=4) #add a recalculated margin just to be sure - use a capital M
-sum_margin<-wrh[,c("Prop","Margin")] #create a two column dataframe
-t<- which (sum_margin$Prop=="Total") # Find the Total Row to remove it
-sum_margin<-sum_margin[-t,] # Remove the Toatl Row
-sum_margino<- sum_margin[order(sum_margin$Margin,decreasing = TRUE),]#Create a sorted DF
-print(format(sum_margino,justify="left",big.mark=","),print.gap=3) #Print it
+brk<-c(.25,.5,.75)
+qnt<- quantile(wrh$margin,brk)
+low<-wrh$margin<=qnt[1]
+mid<-wrh$margin>qnt[1] & wrh$margin<=qnt[2]
+high<-wrh$margin>qnt[2] & wrh$margin<=qnt[3]
+topq<-wrh$margin>qnt[3]
+#high<-wrh$margin>qnt[2] & wrh$margin<cutoff
+#topq<-wrh$margin>=cutoff
+print ("Top Quartile",quote=FALSE)
+print(format(wrh[topq,c("prop","margin","units","sqft")],big.mark=",",digits=3))
+print ("Third Quartile",quote=F)
+print (format(wrh[high,c("prop","margin","units","sqft")],big.mark=",",digits=3))
+print ("Second Quartile",quote=F)
+print (format(wrh[mid,c("prop","margin","units","sqft")],big.mark=",",digits=3))
+print ("Low Quartile",quote=F)
+print (format(wrh[low,c("prop","margin","units","sqft")],big.mark=",",digits=3))
 ```
 
-Looking further at the top five properties
+Following is a summary of average per square foot statistics and average per unit statistics.  
+Average Per Square Foot:
+```{r, echo=FALSE,message=FALSE, warning=FALSE,comment=NA,row.names=FALSE}
+
+labl<-c("low","mid","high","topq")
+lowmean<-colMeans((psqft[low,sview]))
+midmean<-colMeans((psqft[mid,sview]))
+highmean<-colMeans((psqft[high,sview]))
+topmean<-colMeans((psqft[topq,sview]))
+meancat<-data.frame(low=lowmean)
+meancat$mid<-midmean
+meancat$high<-highmean
+meancat$top<-topmean
+print(meancat,digits=2)
+```
+Averarge Per Unit:
+
+```{r, echo=FALSE,message=FALSE, warning=FALSE,comment=NA,row.names=FALSE}
+
+labl<-c("low","mid","high","topq")
+lowmeanu<-colMeans((punit[low,sview]))
+midmeanu<-colMeans((punit[mid,sview]))
+highmeanu<-colMeans((punit[high,sview]))
+topmeanu<-colMeans((punit[topq,sview]))
+meancatu<-data.frame(low=lowmeanu)
+meancatu$mid<-midmeanu
+meancatu$high<-highmeanu
+meancatu$top<-topmeanu
+print(format(meancatu,justify="left",big.mark=",",digits=2))
+
+```
+
+Here are the top five properties, followed by per unit and per square foot statistics:
 
 ```{r, echo=FALSE,message=FALSE, warning=FALSE,comment=NA,row.names=FALSE}
 #Identify Top 5 and create DF
-cutoff<-min(sum_margino[1:5,"Margin"])
-top5 <-which(wrh[,"Margin"]>=cutoff)
+cutoff<-min(sum_margin[1:5,"Margin"])
+top5 <-which(wrh$margin>=cutoff)
 wrhtop5<-wrh[top5,]
 wrhtop5<-wrhtop5[order(wrhtop5$Margin,decreasing = TRUE),]
-sum5<- wrhtop5[,c("Prop","state","rev","noiar","units","sqft")]
+sum5<- wrhtop5[,c("prop","state","rev","noiar","units","sqft","Margin")]
 sum5$revunit<-sum5[,3]/sum5[,5]
 sum5$noiarunit<-sum5[,4]/sum5[,5]
-sum5$revft<-sum5[,3]/sum5[,6]
-sum5$noiarft<-sum5[,4]/sum5[,6]
-sum5$avgunit<-sum5[,6]/sum5[,5]
-print(format(sum5[,c(1,4,5,6,7)],justify="left",big.mark=","),print.gap=3) #Print it
+sum5$revsqft<-sum5[,3]/sum5[,6]
+sum5$noiarsqft<-sum5[,4]/sum5[,6]
+sum5$Avg_unit_size<-sum5[,6]/sum5[,5]
+print(format(sum5[,c(1,3,4,7,5)],justify="left", big.mark=","),print.gap=3) #Print it
+```
+
+```{r, echo=FALSE,message=FALSE, warning=FALSE,comment=NA,row.names=FALSE}
+
+print(format(sum5[,c("revunit","noiarunit","revsqft","noiarsqft","Avg_unit_size")],justify="left", big.mark=","),print.gap=3) #Print it
+```
+
+To give a detail for basis of comaprison, here are all the properties' per unit statistics, sorted by margin from high to low
+
+```{r, echo=FALSE,message=FALSE, warning=FALSE,comment=NA,row.names=FALSE}
+
+  srt<-arrange(psqft[,c("prop#",sview)],desc(margin))
+    print (format(srt,justify="left",big.mark=",", digits=3))
+```
+
+And some unit, property size and unit size statistics.
+```{r, echo=FALSE,message=FALSE, warning=FALSE,comment=NA,row.names=FALSE}
+
+  propchar<-arrange(wrh[,c("prop","units","sqft","avgunitsize","mkt","margin")],desc(margin))
+    print (format(propchar,justify="left",big.mark=",", digits=3))
+```
 
 
+Looking at this information, I reach the unsurprising conclusion that revenue per square foot has the most signifcant effect on the margin. It is not a pefect correlation, but it has a stronger relationship to margin than other measures.   Here is a plot of revenue per square foot to margin that shows the relationship between the two:
+
+```{r, echo=FALSE,message=FALSE, warning=FALSE,comment=NA,row.names=FALSE}
+f<-lm(rev~wrh$margin, data = psqft)
+with (psqft,plot(rev~wrh$margin,ylab="$rev/sqft",xlab="Margin"))
+#lines(psqft$wrh$margin, fitted(f), col="blue")
+#abline(h=10.6, col="red")
+abline(f,col="blue")
+```
+
+Here are some take aways from this analysis:  
+Six of the seven properties in the top margin quartile have revenue per square foot over $10. The only exception is Edenwood which has $8.37 of revenue per square foot but it has  very low expenses.  
+The range of expenses per square foot is relatively small : $3.9 to $7.1 compared to the revenue range of $6.0 to $13.23 (see the following Box Plot).   This indicates most costs are fixed or semi fixed. While cost control is important,costs probably cannot be reduced enough to affect the margin substantially. The major lever to increase margin is revenue growth.
+
+```{r, echo=FALSE,message=FALSE, warning=FALSE,comment=NA,row.names=FALSE}
+    srt<-arrange(psqft[,c("prop#",sview)],desc(margin))
+    #print (format(srt,justify="left",big.mark=",", digits=3))
+    #summary(srt$rev)
+    #summary(srt$totexp)
+    boxplot(srt$totexp,srt$rev,names=c("OprExp$/Sqft","Rev$/SqFt"))
+
+    
+```
 
 
-
-
+With that said, it is probably worthwhile to look at properties that are achieving revenue per square foot of $10 or more that have lower margins to determine if expense levels are in line with the property operations.   
